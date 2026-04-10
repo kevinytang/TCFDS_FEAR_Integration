@@ -1,0 +1,103 @@
+# ============================================================
+# TCFDS-FEAR Pipeline Configuration
+# Edit this file before running doe_pipeline.py
+# ============================================================
+
+# ------------------------------------
+# Nominal initial conditions (Stardust entry interface)
+# ------------------------------------
+nominal_ic:
+  V0: 12765.0          # m/s  — inertial velocity
+  gamma0: -7.412       # deg  — flight path angle (negative = below local horizontal)
+  psi0: 352.8          # deg  — heading angle measured from east
+  alt0: 82701.0        # m    — altitude above Earth surface
+  lon0: 240.7917       # deg  — geodetic longitude
+  lat0: 41.2323        # deg  — geodetic latitude
+  alpha0: 2.4          # deg  — angle of attack
+  cone_angle: 59.6     # deg  — determines geometry files used (50 | 59.6 | 70)
+  mass: 45.7           # kg
+  Aref: 0.516159       # m²   — reference area
+
+# ------------------------------------
+# Perturbation ranges around nominal
+# Continuous variables: [min_delta, max_delta] added to nominal
+# Discrete variables: list of absolute values to sample from
+# ------------------------------------
+perturbation_ranges:
+  V0: [-200.0, 200.0]          # m/s
+  gamma0: [-0.5, 0.5]          # deg
+  psi0: [-5.0, 5.0]            # deg
+  alt0: [-500.0, 500.0]        # m
+  lon0: [-2.0, 2.0]            # deg
+  lat0: [-2.0, 2.0]            # deg
+  cone_angle: [50, 59.6, 70]   # discrete — list of absolute values
+  mass: [-2.0, 2.0]            # kg
+  Aref_pct: [-5.0, 5.0]        # % perturbation applied to nominal Aref
+
+# ------------------------------------
+# Design of Experiments settings
+# ------------------------------------
+doe:
+  n_cases: 21
+  method: lhs          # lhs | full_factorial | random | from_file
+  seed: 42             # random seed for reproducibility (lhs / random)
+  from_file: null      # path to CSV file if method = from_file
+                       # CSV must have columns matching perturbation_ranges keys
+
+# ------------------------------------
+# Server paths — MUST EDIT before deploying
+# ------------------------------------
+paths:
+  fear_executable: ./FEAR           # path to FEAR binary (absolute or relative to fear_inputs/)
+  fun3d_executable: /home/kevinytang/fun3d/fun3d_install/fun3d/FUN3D_90/nodet_mpi
+  trajectory_executable: Reentry_3DOF_NonPlanar/reentry.exe   # relative to tcfds_dir
+  tcfds_dir: ../Trajectory_CFD_Integration                     # relative to Pipeline/
+  mesh_inputs_dir: ../Mesh_Inputs                              # relative to Pipeline/
+  fun3d_meshes_dir: ../fun3d_meshes                            # relative to Pipeline/
+  runs_dir: ../runs                                            # relative to Pipeline/
+  training_data_dir: ../training_data                          # relative to Pipeline/
+
+# ------------------------------------
+# TCFDS execution settings
+# ------------------------------------
+tcfds:
+  max_parallel_cases: 3    # number of TCFDS cases to run concurrently
+  mpi_procs: 10            # MPI processes per FUN3D run
+
+# ------------------------------------
+# FEAR settings
+# ------------------------------------
+fear:
+  pica_density: 1600.0         # kg/m³ — PICA virgin density for mass loss calculation
+  output_time_interval: 5.0    # seconds — interval for time-history sampling of FEAR outputs
+  fear_timestep: 0.06          # seconds — FEAR internal time step (determines out_*.dat numbering)
+
+# ------------------------------------
+# Geometry file mapping
+# cone_angle (deg) -> file stems and nose radius
+# ------------------------------------
+geometry_files:
+  59.6:
+    csm: Stardust_054_59deg.csm
+    msh: Stardust_054_59deg.msh
+    msh_dir: Stardust_054_59deg/Input/Stardust_054_59deg   # relative to mesh_inputs_dir
+    fearindat_template: Stardust_054_59deg/Input/FEARin.dat
+    sf_list: Stardust_054_59deg/Input/Stardust_054_59deg/sf_list.txt
+    r_nose: 0.21    # m
+    fun3d_mesh_subdir: cone_59deg
+  50:
+    csm: 054_50deg.csm
+    msh: 054_50deg.msh
+    msh_dir: 054_50deg
+    fearindat_template: Stardust_054_59deg/Input/FEARin.dat   # reuse same template structure
+    sf_list: null    # sf_list must be generated with extractNode.py before running
+    r_nose: 0.26
+    fun3d_mesh_subdir: cone_50deg
+  70:
+    csm: 054_70deg.csm
+    msh: 054_70deg.msh
+    msh_dir: 054_70deg
+    fearindat_template: Stardust_054_59deg/Input/FEARin.dat
+    sf_list: null
+    r_nose: 0.14
+    fun3d_mesh_subdir: cone_70deg
