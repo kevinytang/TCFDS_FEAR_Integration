@@ -1,0 +1,3 @@
+[submodule "Trajectory_CFD_Integration"]
+	path = Trajectory_CFD_Integration
+	url = https://github.com/kevinytang/Trajectory_CFD_Integration

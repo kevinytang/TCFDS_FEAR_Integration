@@ -1,0 +1,4 @@
+1. Change the coordinate so that the stagnation point is 0, 0
+2. Run extractNode.py to get the spatial factor for the heat flux
+3. Run manipulationForFEAR.m with the data obtained from the CFD-Trajectory code to obtain the FEAR inputs
+4. Copy the inputs into input files, make sure the format does not contain scientific notation

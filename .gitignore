@@ -1,0 +1,11 @@
+.venv/
+FEAR_Output/
+Trajectory_CFD_Integration/fun3D_Solver/reentryCFD/Scratch/
+*.exe
+*.b8.ugrid
+*.lb8.ugrid
+*.flow
+.idea/
+*Zone.Identifier
+__pycache__/
+*.pyc

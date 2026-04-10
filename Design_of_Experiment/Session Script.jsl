@@ -1,0 +1,38 @@
+New Window( "DOE - Custom Design",
+	<<Type( "Dialog" ),
+	<<Show Menu( 1 ),
+	V List Box(
+		DOE(
+			Custom Design,
+			{Add Response( None, "Cl", ., ., . ),
+			Add Response( None, "Cd", ., ., . ),
+			Add Factor( Continuous, 7846.6, 8046.6, "V0", 0, "m/s" ),
+			Add Factor( Continuous, -7.2933, 2.7067, "GAMMA0", 0, "deg" ),
+			Add Factor( Continuous, 258.36, 268.36, "PSI0", 0, "deg" ),
+			Add Factor( Continuous, 124900, 125100, "ALT0", 0, "m" ),
+			Add Factor( Continuous, 212.2874, 216.2874, "LON0", 0, "deg" ),
+			Add Factor( Continuous, 31.8818, 35.8818, "LAT0", 0, "deg" ),
+			Add Factor(
+				Categorical,
+				{"45 DEG", "60 DEG", "70 DEG"},
+				"CONE ANGLE",
+				0
+			), Set Random Seed( 53961 ), Number of Starts( 20 ), Add Term( {1, 0} ),
+			Add Term( {1, 1} ), Add Term( {2, 1} ), Add Term( {3, 1} ),
+			Add Term( {4, 1} ), Add Term( {5, 1} ), Add Term( {6, 1} ),
+			Add Term( {7, 1} ), Add Alias Term( {1, 1}, {2, 1} ),
+			Add Alias Term( {1, 1}, {3, 1} ), Add Alias Term( {1, 1}, {4, 1} ),
+			Add Alias Term( {1, 1}, {5, 1} ), Add Alias Term( {1, 1}, {6, 1} ),
+			Add Alias Term( {1, 1}, {7, 1} ), Add Alias Term( {2, 1}, {3, 1} ),
+			Add Alias Term( {2, 1}, {4, 1} ), Add Alias Term( {2, 1}, {5, 1} ),
+			Add Alias Term( {2, 1}, {6, 1} ), Add Alias Term( {2, 1}, {7, 1} ),
+			Add Alias Term( {3, 1}, {4, 1} ), Add Alias Term( {3, 1}, {5, 1} ),
+			Add Alias Term( {3, 1}, {6, 1} ), Add Alias Term( {3, 1}, {7, 1} ),
+			Add Alias Term( {4, 1}, {5, 1} ), Add Alias Term( {4, 1}, {6, 1} ),
+			Add Alias Term( {4, 1}, {7, 1} ), Add Alias Term( {5, 1}, {6, 1} ),
+			Add Alias Term( {5, 1}, {7, 1} ), Add Alias Term( {6, 1}, {7, 1} ),
+			Set Sample Size( 18 ), Simulate Responses( 0 ), Save X Matrix( 0 ),
+			Make Design}
+		)
+	)
+) << Move Window( 1146, 421 ) << Set Window Icon( "DOptim" )
