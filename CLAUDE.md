@@ -54,6 +54,27 @@ python control.py
 #         FUN3D outputs in fun3D_Solver/reentryCFD/Scratch/
 ```
 
+### Pipeline (DoE Training Data Generation)
+```bash
+# From repo root (all 21 cases, parallel TCFDS, sequential FEAR):
+python Pipeline/doe_pipeline.py --config Pipeline/pipeline_config.yaml
+
+# Skip mesh pre-build if meshes already exist:
+python Pipeline/doe_pipeline.py --config Pipeline/pipeline_config.yaml --skip-prebuild
+
+# Resume after interruption (skips cases with existing history.csv):
+python Pipeline/doe_pipeline.py --config Pipeline/pipeline_config.yaml --skip-prebuild --resume
+```
+
+**Before running on a new machine**, update these fields in `Pipeline/pipeline_config.yaml`:
+- `paths.fun3d_executable` — absolute path to `nodet_mpi`
+- `paths.fear_executable` — absolute path to `FEAR` binary
+
+**Known gotchas:**
+- `cfd_control.nml` `Num_Iter` must be **1800** (the solver needs 1800 iterations to converge). If accidentally set to 1, FUN3D runs one iteration and returns near-zero Cl/Cd.
+- `--resume` skips cases that already have `history.csv`. If a previous run used wrong settings (e.g. `Num_Iter=1`), **delete `runs/`** before re-running to avoid carrying over bad data.
+- The Fortran trajectory code hardcodes `open(file='../config.nml')` relative to its CWD. `control.py` handles this by running `reentry.exe` from `workdir/reentry_work/` so `../config.nml` resolves to the case-specific config. Do not change the Fortran CWD logic without accounting for this.
+
 ### MATLAB Post-Processing (TCFDS output → FEAR inputs)
 ```matlab
 cd Design_of_Experiment/
