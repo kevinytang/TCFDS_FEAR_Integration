@@ -28,6 +28,7 @@ Usage:
 
 import argparse
 import csv
+import os
 import shutil
 import subprocess
 import sys
@@ -66,6 +67,12 @@ def main():
 
     max_workers = config["tcfds"].get("max_parallel_cases", 3)
     fear_exe    = config["paths"]["fear_executable"]
+
+    # Propagate fun3d_executable to child processes via env var so run_fun3d.py
+    # uses the path configured for this machine, not the hardcoded cfd_control.nml value.
+    fun3d_exe = config["paths"].get("fun3d_executable", "")
+    if fun3d_exe:
+        os.environ["FUN3D_NODET"] = fun3d_exe
 
     # Override n_cases from CLI if provided
     if args.n_cases is not None:

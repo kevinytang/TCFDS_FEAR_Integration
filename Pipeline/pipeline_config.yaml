@@ -49,7 +49,7 @@ doe:
 # ------------------------------------
 paths:
   fear_executable: ./FEAR           # path to FEAR binary (absolute or relative to fear_inputs/)
-  fun3d_executable: /home/kevinytang/fun3d/fun3d_install/fun3d/FUN3D_90/nodet_mpi
+  fun3d_executable: /home/ytang401/fun3d/fun3d_install/fun3d/FUN3D_90/nodet_mpi
   trajectory_executable: Reentry_3DOF_NonPlanar/reentry.exe   # relative to tcfds_dir
   tcfds_dir: ../Trajectory_CFD_Integration                     # relative to Pipeline/
   mesh_inputs_dir: ../Mesh_Inputs                              # relative to Pipeline/
