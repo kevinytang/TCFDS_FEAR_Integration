@@ -34,6 +34,18 @@ source .venv/bin/activate
 
 ## Run Commands
 
+### Pre-build FUN3D Meshes (required once before running the pipeline)
+```bash
+# From repo root, with ESP environment active:
+python Pipeline/prebuild_fun3d_meshes.py --config Pipeline/pipeline_config.yaml
+# Outputs: fun3d_meshes/cone_50deg/, cone_59deg/, cone_70deg/ — each with .lb8.ugrid + .mapbc + mesh_ready.flag
+```
+
+**Known gotchas:**
+- Requires ESP 1.28+ (pyCAPS ≥ 3.x). The old `workDir=` kwarg to `pyCAPS.Problem()` was removed; the script does not use it.
+- `.STEP` files in `fun3D_Solver/` must have Unix (LF) line endings. Files sourced from Windows have CRLF, which causes a silent `EGADS_NOTFOUND` error. Fix: `sed -i 's/\r//' Trajectory_CFD_Integration/fun3D_Solver/*.STEP`
+- All three STEP files must be present: `Stardust_054_59deg.STEP`, `054_50deg.STEP`, `054_70deg.STEP`
+
 ### Full Coupled Simulation (TCFDS)
 ```bash
 cd Trajectory_CFD_Integration/

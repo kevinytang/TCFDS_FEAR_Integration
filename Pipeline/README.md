@@ -39,7 +39,9 @@ pip install numpy scipy f90nml pyyaml
 
 ### ESP / pyCAPS (Engineering Sketch Pad)
 
-pyCAPS ships with the ESP (Engineering Sketch Pad) distribution. You must enter the ESP shell environment before running any FUN3D or pyCAPS commands:
+pyCAPS ships with the ESP (Engineering Sketch Pad) distribution. You must enter the ESP shell environment before running any FUN3D or pyCAPS commands.
+
+> **API compatibility:** The `prebuild_fun3d_meshes.py` script targets ESP 1.28+ (pyCAPS ≥ 3.x). The older `workDir` keyword argument to `pyCAPS.Problem()` was removed in newer versions; the script does not use it.
 
 ```bash
 source /path/to/ESP/ESPenv.sh    # sets PATH, LD_LIBRARY_PATH, etc.
@@ -48,8 +50,10 @@ source /path/to/ESP/ESPenv.sh    # sets PATH, LD_LIBRARY_PATH, etc.
 Verify the environment is active:
 
 ```bash
-python -c "import pyCAPS; print(pyCAPS.__version__)"
+python -c "import pyCAPS; print(dir(pyCAPS))"
 ```
+
+> **Note:** Some ESP versions do not expose `pyCAPS.__version__`. The `dir()` check above is more reliable.
 
 ### FUN3D
 
@@ -219,7 +223,7 @@ This will:
 To force regeneration of an existing mesh:
 
 ```bash
-python Pipeline/prebuild_fun3d_meshes.py --force
+python Pipeline/prebuild_fun3d_meshes.py --config Pipeline/pipeline_config.yaml --force
 ```
 
 Pre-building takes on the order of 10–30 minutes per geometry. Once done, all pipeline runs will reuse the pre-built meshes.
@@ -373,6 +377,26 @@ paths:
 ```
 
 Verify MPI is available: `which mpirun` or `module load openmpi`
+
+### `EGADS_NOTFOUND` / `caps_build Error: ocsmBuild fails!` during mesh prebuild
+
+This error means EGADS could not find the `.STEP` geometry file referenced by a `.csm` file.
+
+**Check 1 — STEP files are present.** All three geometry files must exist in `Trajectory_CFD_Integration/fun3D_Solver/`:
+
+```
+Stardust_054_59deg.STEP
+054_50deg.STEP
+054_70deg.STEP
+```
+
+**Check 2 — STEP files have Unix line endings.** If the files were created or edited on Windows they will have CRLF line endings, which EGADS cannot parse. Convert them:
+
+```bash
+sed -i 's/\r//' Trajectory_CFD_Integration/fun3D_Solver/*.STEP
+```
+
+Verify with `file *.STEP` — the output should say `ASCII text`, not `ASCII text, with CRLF line terminators`.
 
 ### `pyCAPS not found` / `import pyCAPS` fails
 

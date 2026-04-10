@@ -92,9 +92,12 @@ def _build_mesh(csm_filename: str, cfd_solver_dir: Path,
     caps_work = output_dir / "caps_work"
     caps_work.mkdir(exist_ok=True)
 
+    # EGADS resolves IMPORT paths relative to cwd, not the CSM file location.
+    # Keep cwd inside cfd_solver_dir for the entire mesh build.
+    orig_dir = Path.cwd()
+    os.chdir(cfd_solver_dir)
     caps_prob = pyCAPS.Problem(problemName=prob_name,
                                capsFile=str(csm_path),
-                               workDir=str(caps_work),
                                outLevel=1)
 
     # ── Surface mesh (AFLR4) ─────────────────────────────────────────────────
@@ -123,25 +126,31 @@ def _build_mesh(csm_filename: str, cfd_solver_dir: Path,
     aflr3.runAnalysis()
 
     # ── Copy mesh files to output_dir ────────────────────────────────────────
-    scratch = caps_work / prob_name / "Scratch" / "aflr3"
+    # pyCAPS creates its scratch dir relative to cfd_solver_dir (our chdir target).
+    # Use os.scandir to avoid glob dotfile exclusion (pyCAPS may name files ".b8.ugrid").
+    scratch = cfd_solver_dir / prob_name / "Scratch" / "aflr3"
+    mesh_suffixes = (".b8.ugrid", ".lb8.ugrid", ".mapbc", ".surf")
     copied = 0
-    for ext in ("*.b8.ugrid", "*.lb8.ugrid", "*.mapbc", "*.surf"):
-        for src in scratch.glob(ext):
-            shutil.copy2(src, output_dir / src.name)
-            print(f"  → Copied {src.name} → {output_dir}")
-            copied += 1
 
-    if copied == 0:
-        # Try alternate locations
-        for src in caps_work.rglob("*.b8.ugrid"):
-            shutil.copy2(src, output_dir / src.name)
-            print(f"  → Copied {src.name} → {output_dir}")
-            copied += 1
+    if scratch.exists():
+        for entry in os.scandir(scratch):
+            if entry.name.endswith(mesh_suffixes) and entry.is_file():
+                shutil.copy2(entry.path, output_dir / entry.name)
+                print(f"  → Copied {entry.name} → {output_dir}")
+                copied += 1
+    else:
+        # Fallback: search entire cfd_solver_dir tree
+        for p in cfd_solver_dir.rglob("*"):
+            if p.name.endswith(mesh_suffixes) and p.is_file():
+                shutil.copy2(p, output_dir / p.name)
+                print(f"  → Copied {p.name} → {output_dir}")
+                copied += 1
 
     if copied == 0:
         raise RuntimeError(f"No mesh files (.b8.ugrid) found after AFLR3 run in {caps_work}")
 
     print(f"  → {copied} mesh file(s) copied to {output_dir}")
+    os.chdir(orig_dir)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
